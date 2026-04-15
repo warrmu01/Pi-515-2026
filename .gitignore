@@ -55,3 +55,6 @@ Data/
 .cache/
 
 *.pdf
+
+*.csv
+*.json
