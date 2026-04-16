@@ -70,24 +70,11 @@ def prepare_soil_moisture_data():
     base_features = [
         "latitude",
         "longitude",
-        "total_precipitation",
-        "runoff",
-        "total_evaporation",
-        "potential_evaporation",
-        "dewpoint_temperature",
         "air_temperature",
-        "year",
+        "dewpoint_temperature",
+        "total_precipitation",
         "month",
         "day",
-        "district_central",
-        "district_east_central",
-        "district_north_central",
-        "district_northeast",
-        "district_northwest",
-        "district_south_central",
-        "district_southeast",
-        "district_southwest",
-        "district_west_central",
     ]
 
     target = "soil_moisture"
