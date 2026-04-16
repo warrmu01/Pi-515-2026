@@ -60,75 +60,61 @@ The system follows a sequential prediction pipeline:
 
 
 ---
-## 📁 Project Structure.
 
+## 📁 Project Structure.
 
 ```
 PI515-AI/
 ├── Data/
-│   └── Raw/
-│       ├── Main_Data.xlsx
-│       └── Main_Data_edited.xlsx
+│ ├── train.csv
+│ └── test.csv
 │
-├── app/
-│   │
-│   ├── js/
-│   │   ├── predict.js
-│   │   └── script.js
-│   │
-│   ├── css/
-│   │   ├── predict.css
-│   │   ├── about.css
-│   │   └── style.css
-│   │
-│   ├── models/
-│   │   └── am_transparency_model.joblib
-│   │   └── pm_transparency_model.joblib
-│   │   └── fish_survial_model.joblib
-│   │   └── spring_temp_model.joblib
-│   │
-│   │
-│   ├── templates/
-│   │   └── about.html
-│   │   └── index.html
-│   │   └── predict.html
-│   
-│ 
+├── app/ (frontend/backend - in progress)
+│ ├── js/
+│ │ ├── predict.js
+│ │ └── script.js
+│ │
+│ ├── css/
+│ │ ├── predict.css
+│ │ ├── about.css
+│ │ └── style.css
+│ │
+│ ├── templates/
+│ │ ├── about.html
+│ │ ├── index.html
+│ │ └── predict.html
+│ │
+│ ├── models/ (optional deployment copies)
+│ │ ├── soil_temperature_model.joblib
+│ │ └── soil_moisture_model.joblib
+│
 ├── src/
-│   ├── __pycache__/
-│   │
-│   ├── Data_Preparation/
-│   │   ├── fish_survival_data_preparation.ipynb
-│   │   ├── fish_survival_data_preparation.py
-│   │   ├── Spring_temp_data_preparation.ipynb
-│   │   ├── Spring_temp_data_preparation.py
-│   │   ├── Transparency_data_preparation.ipynb
-│   │   └── Transparency_data_preparation.py
-│   │
-│   ├── models/
-│   │   └── am_transparency_model.joblib
-│   │   └── pm_transparency_model.joblib
-│   │   └── fish_survial_model.joblib
-│   │   └── spring_temp_model.joblib
-│   │
-│   ├── notebooks/
-│   │   ├── fish_survival_model.ipynb
-│   │   ├── spring_temp_model.ipynb
-│   │   └── transparency_model.ipynb
-│   │
-│   ├── py/
-│   │   ├── fish_survival_model.py
-│   │   ├── spring_temp_model.py
-│   │   └── transparency_model.py
-│   │
-│   ├── chained_model.ipynb
-│   ├── DNN.ipynb
-│   ├── timeseries_utils.py
-│   └── EDA.ipynb
+│ ├── pycache/
+│ │
+│ ├── Data_Preparation/
+│ │ ├── soil_temp_data_preparation.ipynb
+│ │ ├── soil_temp_data_preparation.py
+│ │ ├── soil_moisture_data_preparation.ipynb
+│ │ └── soil_moisture_data_preparation.py
+│ │
+│ ├── models/
+│ │ ├── soil_temperature_model.joblib
+│ │ └── soil_moisture_model.joblib
+│ │
+│ ├── notebooks/
+│ │ ├── soil_temp_model.ipynb
+│ │ └── soil_moisture_model.ipynb
+│ │ └── EDA.ipynb
+│ │
+│ ├── py/
+│ │ ├── soil_temp_model.py
+│ │ └── soil_moisture_model.py
+│ │
 │
 ├── README.md
 ├── requirements.txt
 ```
+---
 
 ## 📊 Model Performance Summary
 
