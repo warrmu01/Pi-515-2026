@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Irrigation helper</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <style>
+    :root {
+      --bg: #fff3ea;
+      --bg-soft: #fafbf8;
+      --surface: #ffffff;
+      --line: #e3e7df;
+      --text: #1f2823;
+      --text-soft: #627269;
+      --accent: #c56c4f;
+      --accent-strong: #9f4f3a;
+      --accent-soft: #f4e1d8;
+      --danger-bg: #fff0ef;
+      --danger-line: #f3cbca;
+      --danger-text: #ab2a2a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Plus Jakarta Sans", "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% -6%, #ffe2d2 0%, transparent 42%),
+        radial-gradient(circle at 90% -10%, #ffd8ea 0%, transparent 35%),
+        linear-gradient(180deg, #fff6ef 0%, #ffeef5 48%, #eef7ff 100%),
+        var(--bg);
+      min-height: 100vh;
+      padding: 1.2rem 1rem 2.2rem;
+    }
+
+    .shell {
+      max-width: 74rem;
+      margin: 0 auto;
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .app-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+      align-items: start;
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Newsreader", "Times New Roman", serif;
+      font-size: clamp(1.45rem, 1.9vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      line-height: 1.12;
+      color: #18221d;
+    }
+
+    .subtitle {
+      margin: 0.25rem 0 0;
+      color: var(--text-soft);
+      font-size: 0.97rem;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 0.15rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      border: 1.5px solid #8c4432;
+      border-radius: 999px;
+      padding: 0.46rem 0.9rem;
+      background: #ffffff;
+      color: #7b3d2c;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.88rem;
+      box-shadow: 0 2px 8px rgba(18, 30, 23, 0.06);
+      transition: transform 0.16s ease, background 0.2s ease;
+    }
+
+    .back-link:hover {
+      background: #fff6f2;
+      transform: translateY(-1px);
+    }
+
+    .back-link svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 0.9rem;
+      box-shadow:
+        0 1px 2px rgba(18, 30, 23, 0.04),
+        0 12px 28px rgba(18, 30, 23, 0.05);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.3fr 1.3fr auto;
+      gap: 0.55rem;
+      align-items: end;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 0.45rem;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.82rem;
+      font-weight: 650;
+      color: #51645a;
+      letter-spacing: 0.01em;
+      padding-left: 0.3rem;
+    }
+
+    select, input {
+      width: 100%;
+      border: 1px solid #d8e2da;
+      border-radius: 999px;
+      padding: 0.68rem 0.95rem;
+      font-size: 0.93rem;
+      font-weight: 500;
+      color: #30413a;
+      background: #fafcf9;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: #d28e76;
+      box-shadow: 0 0 0 4px rgba(197, 108, 79, 0.16);
+    }
+
+    button {
+      border: 1.5px solid #8c4432;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #cf7556, #b55f45);
+      color: #fff8f2;
+      padding: 0.66rem 1.35rem;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-width: 8rem;
+      box-shadow: 0 8px 18px rgba(181, 95, 69, 0.28);
+      letter-spacing: 0.005em;
+    }
+
+    button:hover {
+      background: linear-gradient(180deg, #da7f5f, #bf664b);
+      transform: translateY(-1px);
+    }
+
+    #map {
+      height: 340px;
+      border: 1px solid #d4ddd3;
+      border-radius: 14px;
+    }
+
+    .help {
+      margin: 0.5rem 0 0;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+    }
+
+    .err {
+      border: 1px solid var(--danger-line);
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border-radius: 12px;
+      padding: 0.7rem 0.8rem;
+      font-size: 0.92rem;
+    }
+
+    .result-title {
+      margin: 0 0 0.7rem;
+      font-family: "Newsreader", "Times New Roman", serif;
+      font-size: 1.25rem;
+      color: #1d2d25;
+    }
+
+    .result-subtitle {
+      margin: -0.2rem 0 0.75rem;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+    }
+
+    .controls-wrap {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .result-table-wrap {
+      border: 1px solid #e0e8e2;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 0.8rem;
+      background: #fcfdfb;
+    }
+
+    table.result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .result-table thead th {
+      text-align: left;
+      background: #f3f7f3;
+      color: #41564c;
+      padding: 0.62rem 0.7rem;
+      border-bottom: 1px solid #e0e8e2;
+      font-weight: 650;
+    }
+
+    .result-table tbody td {
+      padding: 0.62rem 0.7rem;
+      border-bottom: 1px solid #edf2ee;
+      color: #27372f;
+    }
+
+    .result-table tbody tr.row-high td {
+      background: #ffe9e6;
+      color: #5f2c24;
+      border-bottom-color: #f2c9c3;
+    }
+
+    .result-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      min-width: 66px;
+      text-align: center;
+      padding: 0.22rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .badge.high { background: #ffe3df; color: #ad4235; }
+    .badge.medium { background: #ffeed7; color: #9c6422; }
+    .badge.low { background: #e7f4ef; color: #356b56; }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .chart-card {
+      border: 1px solid #e0e8e2;
+      background: #f9fbf8;
+      border-radius: 14px;
+      padding: 0.75rem;
+    }
+
+    .chart-card h3 {
+      margin: 0 0 0.35rem;
+      font-size: 0.92rem;
+      color: #42564c;
+      font-weight: 600;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 210px;
+    }
+
+    @media (max-width: 860px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+      button { width: 100%; }
+      #map { height: 300px; }
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="back-link" href="/">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H6"></path>
+          <path d="M12 18l-6-6 6-6"></path>
+        </svg>
+        <span>Back</span>
+      </a>
+    </div>
+
+    <div class="app-layout">
+      <form method="post" class="controls-wrap">
+        <section class="card toolbar">
+          <div class="field">
+            <label for="iowa-city">Iowa city</label>
+            <select id="iowa-city" name="iowa_city">
+              <option value="" disabled {% if not request.form.iowa_city %}selected{% endif %}>Choose city</option>
+              <option value="Ames" {% if request.form.iowa_city == "Ames" %}selected{% endif %}>Ames</option>
+              <option value="Ankeny" {% if request.form.iowa_city == "Ankeny" %}selected{% endif %}>Ankeny</option>
+              <option value="Bettendorf" {% if request.form.iowa_city == "Bettendorf" %}selected{% endif %}>Bettendorf</option>
+              <option value="Cedar Falls" {% if request.form.iowa_city == "Cedar Falls" %}selected{% endif %}>Cedar Falls</option>
+              <option value="Cedar Rapids" {% if request.form.iowa_city == "Cedar Rapids" %}selected{% endif %}>Cedar Rapids</option>
+              <option value="Clinton" {% if request.form.iowa_city == "Clinton" %}selected{% endif %}>Clinton</option>
+              <option value="Council Bluffs" {% if request.form.iowa_city == "Council Bluffs" %}selected{% endif %}>Council Bluffs</option>
+              <option value="Davenport" {% if request.form.iowa_city == "Davenport" %}selected{% endif %}>Davenport</option>
+              <option value="Decorah" {% if request.form.iowa_city == "Decorah" %}selected{% endif %}>Decorah</option>
+              <option value="Des Moines" {% if request.form.iowa_city == "Des Moines" %}selected{% endif %}>Des Moines</option>
+              <option value="Dubuque" {% if request.form.iowa_city == "Dubuque" %}selected{% endif %}>Dubuque</option>
+              <option value="Fort Dodge" {% if request.form.iowa_city == "Fort Dodge" %}selected{% endif %}>Fort Dodge</option>
+              <option value="Iowa City" {% if request.form.iowa_city == "Iowa City" %}selected{% endif %}>Iowa City</option>
+              <option value="Johnston" {% if request.form.iowa_city == "Johnston" %}selected{% endif %}>Johnston</option>
+              <option value="Marion" {% if request.form.iowa_city == "Marion" %}selected{% endif %}>Marion</option>
+              <option value="Marshalltown" {% if request.form.iowa_city == "Marshalltown" %}selected{% endif %}>Marshalltown</option>
+              <option value="Mason City" {% if request.form.iowa_city == "Mason City" %}selected{% endif %}>Mason City</option>
+              <option value="Muscatine" {% if request.form.iowa_city == "Muscatine" %}selected{% endif %}>Muscatine</option>
+              <option value="Newton" {% if request.form.iowa_city == "Newton" %}selected{% endif %}>Newton</option>
+              <option value="Ottumwa" {% if request.form.iowa_city == "Ottumwa" %}selected{% endif %}>Ottumwa</option>
+              <option value="Sioux City" {% if request.form.iowa_city == "Sioux City" %}selected{% endif %}>Sioux City</option>
+              <option value="Urbandale" {% if request.form.iowa_city == "Urbandale" %}selected{% endif %}>Urbandale</option>
+              <option value="Waterloo" {% if request.form.iowa_city == "Waterloo" %}selected{% endif %}>Waterloo</option>
+              <option value="West Des Moines" {% if request.form.iowa_city == "West Des Moines" %}selected{% endif %}>West Des Moines</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="date_range">Date range</label>
+            <input
+              id="date_range"
+              name="date_range"
+              type="text"
+              placeholder="Choose date range"
+              value="{% if request.form.start_date and request.form.end_date %}{{ request.form.start_date }} to {{ request.form.end_date }}{% else %}{{ request.form.date_range or '' }}{% endif %}"
+              required
+            />
+          </div>
+          <input id="start_date" name="start_date" type="hidden" value="{{ request.form.start_date or '' }}" />
+          <input id="end_date" name="end_date" type="hidden" value="{{ request.form.end_date or '' }}" />
+          <button type="submit">Predict</button>
+        </section>
+
+        <section class="card">
+          <div id="map"></div>
+          <p class="help">Click map or drag marker to set the exact field point.</p>
+          <input id="latitude" name="latitude" type="hidden" value="{{ request.form.latitude or '43.3033' }}" required />
+          <input id="longitude" name="longitude" type="hidden" value="{{ request.form.longitude or '-91.7857' }}" required />
+        </section>
+      </form>
+
+      {% if error %}
+      <p class="err"><strong>Error:</strong> {{ error }}</p>
+      {% endif %}
+
+      {% if show_result and result %}
+      <section class="card">
+        <h2 class="result-title">Range Forecast Results</h2>
+        <p class="result-subtitle">Predictions for each day in your selected start-to-end date range.</p>
+
+        <div class="result-table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Soil Temperature</th>
+                <th>Soil Moisture</th>
+                <th>Irrigation Need</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in daily_results %}
+              <tr class="{% if row.irrigation_recommendation == 'HIGH' %}row-high{% endif %}">
+                <td>{{ row.date }}</td>
+                <td>{{ row.soil_temperature }}</td>
+                <td>{{ row.soil_moisture }}</td>
+                <td>
+                  {% set band = row.irrigation_recommendation %}
+                  <span class="badge {{ band|lower }}">{{ band }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="charts-grid">
+          <article class="chart-card">
+            <h3>Range trend</h3>
+            <div class="chart-wrap">
+              <canvas id="outputProfileChart"></canvas>
+            </div>
+          </article>
+          <article class="chart-card">
+            <h3>Irrigation need by day</h3>
+            <div class="chart-wrap">
+              <canvas id="urgencyChart"></canvas>
+            </div>
+          </article>
+        </div>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    const DECORAH = { lat: 43.3033, lon: -91.7857 };
+    const IOWA_CITIES = {
+      "Ames": { lat: 42.0347, lon: -93.62 },
+      "Ankeny": { lat: 41.7318, lon: -93.6001 },
+      "Bettendorf": { lat: 41.525, lon: -90.5151 },
+      "Cedar Falls": { lat: 42.5349, lon: -92.4453 },
+      "Cedar Rapids": { lat: 41.9779, lon: -91.6656 },
+      "Clinton": { lat: 41.8445, lon: -90.1887 },
+      "Council Bluffs": { lat: 41.2619, lon: -95.8608 },
+      "Davenport": { lat: 41.5236, lon: -90.5776 },
+      "Decorah": { lat: 43.3033, lon: -91.7857 },
+      "Des Moines": { lat: 41.5868, lon: -93.625 },
+      "Dubuque": { lat: 42.5006, lon: -90.6646 },
+      "Fort Dodge": { lat: 42.4975, lon: -94.168 },
+      "Iowa City": { lat: 41.6611, lon: -91.53 },
+      "Johnston": { lat: 41.673, lon: -93.697 },
+      "Marion": { lat: 42.0347, lon: -91.5969 },
+      "Marshalltown": { lat: 42.0494, lon: -92.908 },
+      "Mason City": { lat: 43.1536, lon: -93.201 },
+      "Muscatine": { lat: 41.4245, lon: -91.0432 },
+      "Newton": { lat: 41.699, lon: -93.0513 },
+      "Ottumwa": { lat: 41.0201, lon: -92.4113 },
+      "Sioux City": { lat: 42.499, lon: -96.4003 },
+      "Urbandale": { lat: 41.6267, lon: -93.7122 },
+      "Waterloo": { lat: 42.4928, lon: -92.3426 },
+      "West Des Moines": { lat: 41.5772, lon: -93.7113 }
+    };
+
+    const citySelect = document.getElementById("iowa-city");
+    const dateRangeInput = document.getElementById("date_range");
+    const startDateInput = document.getElementById("start_date");
+    const endDateInput = document.getElementById("end_date");
+    const latInput = document.getElementById("latitude");
+    const lonInput = document.getElementById("longitude");
+
+    if (dateRangeInput && startDateInput && endDateInput) {
+      flatpickr(dateRangeInput, {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        minDate: "{{ min_date }}",
+        conjunction: " to ",
+        defaultDate: (startDateInput.value && endDateInput.value) ? [startDateInput.value, endDateInput.value] : undefined,
+        onChange: function(selectedDates, dateStr) {
+          dateRangeInput.value = dateStr;
+          if (selectedDates.length >= 1) {
+            startDateInput.value = selectedDates[0].toISOString().slice(0, 10);
+          } else {
+            startDateInput.value = "";
+          }
+          if (selectedDates.length >= 2) {
+            endDateInput.value = selectedDates[1].toISOString().slice(0, 10);
+          } else {
+            endDateInput.value = "";
+          }
+        }
+      });
+    }
+
+    const initialLat = Number.parseFloat(latInput.value) || DECORAH.lat;
+    const initialLon = Number.parseFloat(lonInput.value) || DECORAH.lon;
+    latInput.value = initialLat.toFixed(6);
+    lonInput.value = initialLon.toFixed(6);
+
+    const map = L.map("map").setView([initialLat, initialLon], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    const marker = L.marker([initialLat, initialLon], { draggable: true }).addTo(map);
+
+    function setLatLon(lat, lon) {
+      latInput.value = Number(lat).toFixed(6);
+      lonInput.value = Number(lon).toFixed(6);
+    }
+
+    map.on("click", (event) => {
+      const { lat, lng } = event.latlng;
+      marker.setLatLng([lat, lng]);
+      setLatLon(lat, lng);
+    });
+
+    marker.on("dragend", (event) => {
+      const pos = event.target.getLatLng();
+      setLatLon(pos.lat, pos.lng);
+    });
+
+    citySelect.addEventListener("change", (event) => {
+      const city = event.target.value;
+      if (!city || !IOWA_CITIES[city]) return;
+      const { lat, lon } = IOWA_CITIES[city];
+      marker.setLatLng([lat, lon]);
+      map.setView([lat, lon], 12);
+      setLatLon(lat, lon);
+    });
+
+    {% if show_result and daily_results %}
+    const dailyResults = {{ daily_results | tojson }};
+    const labels = dailyResults.map((row) => row.date);
+    const soilTemps = dailyResults.map((row) => Number(row.soil_temperature));
+    const soilMoists = dailyResults.map((row) => Number(row.soil_moisture));
+    const urgencyValues = dailyResults.map((row) => {
+      if (row.irrigation_recommendation === "HIGH") return 3;
+      if (row.irrigation_recommendation === "MEDIUM") return 2;
+      return 1;
+    });
+
+    const profileCtx = document.getElementById("outputProfileChart");
+    if (profileCtx) {
+      new Chart(profileCtx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Soil Temperature",
+              data: soilTemps,
+              borderColor: "#bf664b",
+              backgroundColor: "rgba(191, 102, 75, 0.20)",
+              tension: 0.35,
+              fill: true,
+            },
+            {
+              label: "Soil Moisture",
+              data: soilMoists,
+              borderColor: "#6f7fc4",
+              backgroundColor: "rgba(111, 127, 196, 0.16)",
+              tension: 0.35,
+              fill: true,
+            },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: "top" } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: "rgba(159, 79, 58, 0.14)" }
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    const urgencyCtx = document.getElementById("urgencyChart");
+    if (urgencyCtx) {
+      new Chart(urgencyCtx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: urgencyValues,
+            backgroundColor: ["#cf7556", "#df9271", "#e9b08e", "#f2ccb2"],
+            borderRadius: 8,
+            borderWidth: 0,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 3,
+              ticks: {
+                stepSize: 1,
+                callback: (value) => {
+                  if (value === 3) return "HIGH";
+                  if (value === 2) return "MEDIUM";
+                  if (value === 1) return "LOW";
+                  return "";
+                },
+              },
+              grid: { color: "rgba(159, 79, 58, 0.14)" },
+            },
+            x: {
+              grid: { display: false },
+            },
+          }
+        }
+      });
+    }
+    {% endif %}
+  </script>
+</body>
+</html>

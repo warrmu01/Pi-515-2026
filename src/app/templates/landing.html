@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoilSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Newsreader:opsz,wght@6..72,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fff3ea;
+      --text: #1f2823;
+      --soft: #627269;
+      --btn: #c56c4f;
+      --btn-dark: #9f4f3a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 10% -6%, #ffe2d2 0%, transparent 42%),
+        radial-gradient(circle at 90% -10%, #ffd8ea 0%, transparent 35%),
+        linear-gradient(180deg, #fff6ef 0%, #ffeef5 48%, #eef7ff 100%),
+        var(--bg);
+      font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .hero {
+      text-align: center;
+      max-width: 46rem;
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 2rem 2rem 2.1rem;
+      box-shadow: 0 14px 32px rgba(149, 84, 63, 0.14);
+    }
+
+    .brand {
+      margin: 0 0 0.35rem;
+      font-family: "Newsreader", "Times New Roman", serif;
+      font-size: clamp(2.4rem, 7vw, 4.5rem);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .tagline {
+      margin: 0 0 1.4rem;
+      color: var(--soft);
+      font-size: clamp(1rem, 2.1vw, 1.25rem);
+      font-weight: 600;
+    }
+
+    .subnote {
+      margin: -0.6rem 0 1.35rem;
+      font-size: 0.95rem;
+      color: #7a6a64;
+    }
+
+    .cta {
+      display: inline-block;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 0.75rem 1.35rem;
+      background: linear-gradient(180deg, var(--btn), var(--btn-dark));
+      color: #fff8f2;
+      font-weight: 700;
+      font-size: 0.96rem;
+      box-shadow: 0 10px 22px rgba(181, 95, 69, 0.25);
+      transition: transform 0.18s ease, filter 0.2s ease;
+    }
+
+    .cta:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .moisture-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .wave {
+      position: absolute;
+      left: -10%;
+      width: 120%;
+      height: 240px;
+      border-radius: 42% 58% 55% 45% / 45% 45% 55% 55%;
+      background: linear-gradient(180deg, rgba(64, 140, 176, 0.18), rgba(77, 154, 124, 0.15));
+      filter: blur(2px);
+      animation: drift 16s ease-in-out infinite alternate;
+    }
+
+    .wave.one { bottom: -140px; }
+    .wave.two {
+      bottom: -165px;
+      opacity: 0.65;
+      animation-duration: 22s;
+      animation-direction: alternate-reverse;
+    }
+
+    .droplet {
+      position: absolute;
+      width: 14px;
+      height: 22px;
+      border-radius: 60% 60% 65% 65% / 75% 75% 45% 45%;
+      background: radial-gradient(circle at 45% 22%, #c6ecff 8%, #77c6ef 65%, #56abd7 100%);
+      opacity: 0.5;
+      animation: floatUp 9s linear infinite;
+    }
+
+    .droplet:nth-child(3) { left: 11%; bottom: -30px; animation-delay: 0.8s; }
+    .droplet:nth-child(4) { left: 24%; bottom: -50px; animation-delay: 3.1s; transform: scale(0.9); }
+    .droplet:nth-child(5) { left: 43%; bottom: -45px; animation-delay: 1.9s; transform: scale(1.15); }
+    .droplet:nth-child(6) { left: 61%; bottom: -40px; animation-delay: 4.2s; transform: scale(0.85); }
+    .droplet:nth-child(7) { left: 78%; bottom: -60px; animation-delay: 2.7s; transform: scale(1.05); }
+    .droplet:nth-child(8) { left: 89%; bottom: -35px; animation-delay: 5.3s; transform: scale(0.8); }
+
+    @keyframes drift {
+      0% { transform: translateX(0) translateY(0) rotate(0deg); }
+      100% { transform: translateX(4%) translateY(-10px) rotate(1deg); }
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 0; }
+      10% { opacity: 0.45; }
+      70% { opacity: 0.45; }
+      100% { transform: translateY(-115vh) scale(1.1); opacity: 0; }
+    }
+
+    @media (max-width: 720px) {
+      .hero { padding: 1.45rem 1.2rem 1.55rem; }
+      .subnote { font-size: 0.88rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="moisture-layer" aria-hidden="true">
+    <div class="wave one"></div>
+    <div class="wave two"></div>
+    <div class="droplet"></div>
+    <div class="droplet"></div>
+    <div class="droplet"></div>
+    <div class="droplet"></div>
+    <div class="droplet"></div>
+    <div class="droplet"></div>
+  </div>
+  <main class="hero">
+    <h1 class="brand">SoilSync</h1>
+    <p class="tagline">Stay informed. Farm smarter.</p>
+    <p class="subnote">Forecast soil moisture with a calm, data-driven dashboard.</p>
+    <a class="cta" href="/predict">Predict Soil Moisture</a>
+  </main>
+</body>
+</html>
