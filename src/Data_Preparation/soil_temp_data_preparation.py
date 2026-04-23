@@ -24,8 +24,8 @@ def prepare_soil_temp_data():
     base_dir = Path(__file__).resolve().parents[2]
     data_dir = base_dir / "Data"
 
-    train_df = pd.read_csv(data_dir / "train.csv")
-    test_df = pd.read_csv(data_dir / "test.csv")
+    train_df = pd.read_csv(data_dir / "SMOS/train.csv")
+    test_df = pd.read_csv(data_dir / "SMOS/test.csv")
 
     rename_map = {
         "num__latitude": "latitude",
@@ -67,6 +67,7 @@ def prepare_soil_temp_data():
         "total_precipitation",
         "month",
         "day",
+        "year"
     ]
 
     target = "soil_temperature"

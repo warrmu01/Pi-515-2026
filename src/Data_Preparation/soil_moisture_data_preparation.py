@@ -32,8 +32,8 @@ def prepare_soil_moisture_data():
     data_dir = base_dir / "Data"
     model_dir = base_dir / "src" / "models"
 
-    train_df = pd.read_csv(data_dir / "train.csv")
-    test_df = pd.read_csv(data_dir / "test.csv")
+    train_df = pd.read_csv(data_dir / "SMOS/train.csv")
+    test_df = pd.read_csv(data_dir / "SMOS/test.csv")
 
     rename_map = {
         "num__latitude": "latitude",
@@ -75,6 +75,7 @@ def prepare_soil_moisture_data():
         "total_precipitation",
         "month",
         "day",
+        "year"
     ]
 
     target = "soil_moisture"
