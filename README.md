@@ -12,52 +12,59 @@ This project uses a **chained modeling architecture**, where intermediate enviro
 
 ### 🏗️ System Architecture
 
-- **Frontend (In Progress)**
-  - Collects user inputs:
-    - Location
-    - Date / Date Range
-  - Displays:
-    - Predicted soil moisture
-    - Irrigation recommendations
+### Frontend (In Progress)
+- User inputs:
+  - Location (Latitude / Longitude)
+  - Date / Date Range  
+- Outputs:
+  - Predicted soil moisture  
+  - Irrigation recommendation  
 
-- **Backend (Python / Flask - Planned)**
-  - Fetches environmental data (weather APIs or dataset)
-  - Runs a chained prediction pipeline:
-    - Predict soil temperature
-    - Predict soil moisture
-    - Generate irrigation recommendation
+---
 
-- **Models**
-  - Built using **XGBoost Regression**
-  - Saved as `.joblib` files in `src/models/`
+### Backend (Python / Flask - Planned)
+- Fetches environmental data (e.g., weather APIs)  
+- Runs the chained prediction pipeline:
+  1. Predict soil temperature  
+  2. Predict soil moisture  
+  3. Generate irrigation recommendation  
+
+---
+
+### Models
+- Built using **XGBoost Regression**
+- Stored in `src/models/`
+- Includes:
+  - SMOS-only models  
+  - Combined (SMOS + SCAN) models  
+  - Feature scalers  
 
 ---
 
 ## 🔗 Chained Model Architecture
 
-The system follows a sequential prediction pipeline:
+Environmental Data → Soil Temperature → Soil Moisture → Irrigation Recommendation
 
-1. **Input Features**
-   - Air Temperature  
-   - Dew Point Temperature  
-   - Precipitation  
-   - Evaporation  
-   - Runoff  
-   - Location (Latitude)  
-   - Time Features (Month, Year)  
+### Input Features:
+- Air Temperature  
+- Dew Point Temperature  
+- Total Precipitation  
+- Location (Latitude, Longitude)  
+- Time Features (Year, Month, Day)  
 
-2. **Model 1: Predict Soil Temperature**
-   - Uses environmental features  
+### Step 1: Soil Temperature Model  
+Predicts soil temperature using environmental features.
 
-3. **Model 2: Predict Soil Moisture**
-   - Uses environmental features + predicted soil temperature  
+### Step 2: Soil Moisture Model  
+Uses:
+- Environmental features  
+- Predicted soil temperature  
 
-4. **Decision Layer: Irrigation Recommendation**
-   - Converts soil moisture into:
-     - **LOW** → sufficient moisture  
-     - **MEDIUM** → moderate irrigation needed  
-     - **HIGH** → urgent irrigation needed
-
+### Step 3: Decision Layer  
+Outputs irrigation level:
+- **LOW** → sufficient moisture  
+- **MEDIUM** → moderate irrigation needed  
+- **HIGH** → urgent irrigation needed  
 
 ---
 
@@ -69,10 +76,10 @@ PI515-AI/
 │ ├── train.csv
 │ └── test.csv
 │
-├── app/ (frontend/backend - in progress)
-│ ├── js/
-│ │ ├── predict.js
-│ │ └── script.js
+├── app/ 
+│ │ ├── app.py
+│ │ ├── open_mateo.py
+│ │ └── predict.py
 │ │
 │ ├── css/
 │ │ ├── predict.css
@@ -118,35 +125,53 @@ PI515-AI/
 
 ## 📊 Model Performance Summary
 
-### 🌡️ Soil Temperature Model (XGBoost)
+### 🌡️ Soil Temperature Model
 
-- **Key Insight**: Air temperature is the dominant predictor (~92% importance)
+| Model | Dataset | R² |
+|------|--------|----|
+| SMOS-only | SMOS | **0.9839** |
+| Combined | SMOS | **0.9768** |
+| Combined | SCAN | **0.9633** |
 
-**Performance:**
-- RMSE: ~0.15  
-- MAE: ~0.11  
-- R²: ~0.97+  
-
----
-
-### 💧 Soil Moisture Model (XGBoost)
-
-- **Key Insight**: Predicted soil temperature is the most important feature
-
-**Performance:**
-- RMSE: ~0.05  
-- MAE: ~0.038  
-- R²: ~0.62–0.64  
+**Insight:**  
+Small drop in SMOS accuracy, but strong generalization to real-world SCAN data.
 
 ---
 
-## 📌 Why RMSE, MAE, and R²?
+### 💧 Soil Moisture Model
 
-- **RMSE** measures absolute prediction error magnitude  
-- **MAE** provides stable, interpretable error  
-- **R²** shows explained variance  
+| Model | Dataset | R² |
+|------|--------|----|
+| SMOS-only | SMOS | **0.6906** |
+| Combined | SMOS | **0.6880** |
+| Combined | SCAN | **0.6605** |
 
-MAPE is not used because the target values are scaled and can include small values, which can distort percentage-based metrics.
+**Insight:**  
+Maintains SMOS performance while enabling real-world predictions.
+
+---
+
+### 🌍 Generalization (Combined Model)
+
+| Dataset | R² |
+|--------|----|
+| Train | 0.6865 |
+| Dev | 0.6818 |
+| SMOS Test | 0.6880 |
+| SCAN Holdout | 0.6605 |
+
+**Insight:**  
+Consistent performance across datasets indicates strong generalization and minimal overfitting.
+
+---
+
+## 📌 Evaluation Metrics
+
+- **RMSE** → Measures prediction error magnitude  
+- **MAE** → Provides interpretable average error  
+- **R²** → Measures explained variance  
+
+MAPE is not used due to scaled values and sensitivity to small numbers.
 
 ---
 
@@ -156,22 +181,22 @@ MAPE is not used because the target values are scaled and can include small valu
 - Location  
 - Date / Date Range  
 
-### System Automatically:
-- Retrieves weather data (via APIs)  
-- Estimates environmental variables  
+### System:
+- Fetches weather data  
 - Runs AI models  
 
 ### Outputs:
-- Predicted soil moisture  
-- Irrigation recommendation (Low / Medium / High)  
+- Soil moisture prediction  
+- Irrigation recommendation  
 
 ---
 
 ## 🚀 Why This Project Matters
 
-- 🌱 **Environmental Impact**: Reduces water waste  
-- 💰 **Economic Impact**: Lowers irrigation costs  
-- 📈 **Scalability**: Works across regions and crops  
-- 👨‍🌾 **Usability**: Designed for non-technical users  
+- 🌱 **Environmental Impact** → Reduces water waste  
+- 💰 **Economic Impact** → Lowers irrigation costs  
+- 🌍 **Real-World Validity** → Uses SCAN sensor data  
+- 📈 **Scalability** → Works across regions  
+- 👨‍🌾 **Usability** → Simple, farmer-friendly outputs  
 
 ---
